@@ -21,6 +21,7 @@ if (!fs.existsSync(usuariosPath)) {
 let usuarios = [];
 try {
   usuarios = JSON.parse(fs.readFileSync(usuariosPath, "utf-8"));
+  console.log("Usuários carregados:", usuarios);
 } catch (error) {
   console.error("Erro ao carregar o arquivo de usuários:", error);
   try {
@@ -45,8 +46,17 @@ const listarUsuarios = (req, res) => {
 const adicionarUsuario = (req, res) => {
   const { nome, dataNascimento, nickname, email, senha } = req.body;
 
+  console.log("Dados recebidos para cadastro:", {
+    nome,
+    dataNascimento,
+    nickname,
+    email,
+    senha,
+  });
+
   // Validações de campos obrigatórios
   if (!nome || !dataNascimento || !nickname || !email || !senha) {
+    console.log("Erro: Campos obrigatórios ausentes.");
     return res.render("cadastroUsuario", {
       usuarios,
       erro: "Todos os campos são obrigatórios!",
@@ -56,6 +66,7 @@ const adicionarUsuario = (req, res) => {
   // Verifica se o e-mail já está cadastrado
   const emailExistente = usuarios.find((u) => u.email === email);
   if (emailExistente) {
+    console.log("Erro: E-mail já cadastrado.");
     return res.render("cadastroUsuario", {
       usuarios,
       erro: "E-mail já cadastrado!",
@@ -65,6 +76,7 @@ const adicionarUsuario = (req, res) => {
   // Verifica se o nickname já está cadastrado
   const nicknameExistente = usuarios.find((u) => u.nickname === nickname);
   if (nicknameExistente) {
+    console.log("Erro: Nickname já está em uso.");
     return res.render("cadastroUsuario", {
       usuarios,
       erro: "Nickname já está em uso!",
@@ -87,5 +99,6 @@ const adicionarUsuario = (req, res) => {
 };
 
 module.exports = { listarUsuarios, adicionarUsuario };
+
 
 
