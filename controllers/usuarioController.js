@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-// Caminho do arquivo de usuários
+// Determina o caminho do arquivo de usuários dependendo do ambiente
 const usuariosPath =
   process.env.NODE_ENV === "production"
     ? path.join("/tmp", "usuarios.json") // Diretório temporário no Vercel
@@ -9,7 +9,12 @@ const usuariosPath =
 
 // Inicializa o arquivo de usuários se não existir
 if (!fs.existsSync(usuariosPath)) {
-  fs.writeFileSync(usuariosPath, JSON.stringify([]));
+  try {
+    fs.writeFileSync(usuariosPath, JSON.stringify([]), "utf-8");
+    console.log("Arquivo de usuários criado com sucesso.");
+  } catch (error) {
+    console.error("Erro ao criar o arquivo de usuários:", error);
+  }
 }
 
 // Carrega os usuários do arquivo JSON com proteção contra erros
@@ -17,15 +22,26 @@ let usuarios = [];
 try {
   usuarios = JSON.parse(fs.readFileSync(usuariosPath, "utf-8"));
 } catch (error) {
-  console.error("Erro ao ler o arquivo de usuários:", error);
-  fs.writeFileSync(usuariosPath, JSON.stringify([]));
+  console.error("Erro ao carregar o arquivo de usuários:", error);
+  try {
+    fs.writeFileSync(usuariosPath, JSON.stringify([]), "utf-8");
+  } catch (writeError) {
+    console.error("Erro ao reescrever o arquivo de usuários:", writeError);
+  }
   usuarios = [];
 }
 
+// Função para listar os usuários cadastrados
 const listarUsuarios = (req, res) => {
-  res.render("cadastroUsuario", { usuarios, erro: null });
+  try {
+    res.render("cadastroUsuario", { usuarios, erro: null });
+  } catch (error) {
+    console.error("Erro ao renderizar a página de cadastro:", error);
+    res.render("error", { message: "Erro ao carregar a página de cadastro." });
+  }
 };
 
+// Função para adicionar um novo usuário
 const adicionarUsuario = (req, res) => {
   const { nome, dataNascimento, nickname, email, senha } = req.body;
 
@@ -46,20 +62,30 @@ const adicionarUsuario = (req, res) => {
     });
   }
 
+  // Verifica se o nickname já está cadastrado
+  const nicknameExistente = usuarios.find((u) => u.nickname === nickname);
+  if (nicknameExistente) {
+    return res.render("cadastroUsuario", {
+      usuarios,
+      erro: "Nickname já está em uso!",
+    });
+  }
+
   // Cria um novo usuário
   const novoUsuario = { nome, dataNascimento, nickname, email, senha };
   usuarios.push(novoUsuario);
 
   try {
-    // Salva no arquivo JSON
-    fs.writeFileSync(usuariosPath, JSON.stringify(usuarios, null, 2));
+    // Salva os usuários atualizados no arquivo JSON
+    fs.writeFileSync(usuariosPath, JSON.stringify(usuarios, null, 2), "utf-8");
     console.log("Usuário cadastrado com sucesso:", novoUsuario);
     res.redirect("/auth/login");
   } catch (error) {
-    console.error("Erro ao salvar usuário no arquivo JSON:", error);
+    console.error("Erro ao salvar o arquivo de usuários:", error);
     res.render("error", { message: "Erro ao salvar o usuário." });
   }
 };
 
 module.exports = { listarUsuarios, adicionarUsuario };
+
 
