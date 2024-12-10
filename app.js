@@ -29,35 +29,16 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/auth", authRoutes);
 app.use("/usuarios", usuariosRoutes);
 
-// Função para formatar data e hora
-function formatarDataHora(data) {
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  };
-  return new Intl.DateTimeFormat("pt-BR", options).format(data);
-}
-
-// Rota do menu
 app.get("/menu", (req, res) => {
   if (!req.session.usuario) {
     return res.redirect("/auth/login");
   }
 
-  const ultimoAcesso = req.cookies.ultimoAcesso
-    ? formatarDataHora(new Date(req.cookies.ultimoAcesso))
-    : "Primeiro acesso";
-
   res.render("menu", {
-    ultimoAcesso,
+    ultimoAcesso: req.cookies.ultimoAcesso || "Primeiro acesso",
   });
 });
 
-// Rota do bate-papo
 app.get("/mensagens/batePapo", (req, res) => {
   if (!req.session.usuario) {
     return res.redirect("/auth/login");
@@ -78,10 +59,29 @@ app.get("/mensagens/batePapo", (req, res) => {
   });
 });
 
-// Define o último acesso
-app.use((req, res, next) => {
-  res.cookie("ultimoAcesso", new Date().toISOString());
-  next();
+app.post("/mensagens/batePapo", (req, res) => {
+  if (!req.session.usuario) {
+    return res.redirect("/auth/login");
+  }
+
+  const { usuario, mensagem } = req.body;
+
+  if (!usuario || !mensagem) {
+    return res.render("batePapo", {
+      usuarios,
+      mensagens,
+      usuarioAtual: req.session.usuario,
+      error: "Todos os campos são obrigatórios!",
+    });
+  }
+
+  mensagens.push({
+    usuario,
+    texto: mensagem,
+    data: new Date().toLocaleString(),
+  });
+
+  res.redirect("/mensagens/batePapo");
 });
 
 app.get("/", (req, res) => res.redirect("/auth/login"));
