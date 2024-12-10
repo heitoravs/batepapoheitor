@@ -63,4 +63,3 @@ const adicionarUsuario = (req, res) => {
 
 module.exports = { listarUsuarios, adicionarUsuario };
 
-module.exports = { listarUsuarios, adicionarUsuario };
