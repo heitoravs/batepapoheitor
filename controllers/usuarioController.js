@@ -13,11 +13,24 @@ if (!fs.existsSync(usuariosPath)) {
 }
 
 // Carrega os usuários do arquivo JSON
-let usuarios = JSON.parse(fs.readFileSync(usuariosPath, "utf-8"));
+let usuarios = [];
+try {
+  usuarios = JSON.parse(fs.readFileSync(usuariosPath, "utf-8"));
+} catch (error) {
+  console.error("Erro ao carregar o arquivo de usuários:", error);
+  fs.writeFileSync(usuariosPath, JSON.stringify([]), "utf-8");
+  usuarios = [];
+}
 
 // Função para listar os usuários cadastrados
 const listarUsuarios = (req, res) => {
-  res.render("cadastroUsuario", { usuarios, erro: null });
+  try {
+    usuarios = JSON.parse(fs.readFileSync(usuariosPath, "utf-8")); // Atualiza a lista de usuários
+    res.render("cadastroUsuario", { usuarios, erro: null });
+  } catch (error) {
+    console.error("Erro ao listar os usuários:", error);
+    res.render("error", { message: "Erro ao carregar os usuários cadastrados." });
+  }
 };
 
 // Função para adicionar um novo usuário
@@ -61,9 +74,6 @@ const adicionarUsuario = (req, res) => {
     res.render("error", { message: "Erro ao salvar o usuário." });
   }
 };
-
-module.exports = { listarUsuarios, adicionarUsuario };
-
 
 module.exports = { listarUsuarios, adicionarUsuario };
 
