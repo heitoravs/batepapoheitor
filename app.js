@@ -10,6 +10,7 @@ const usuariosRoutes = require("./routes/usuarios");
 
 const app = express();
 
+// Configuração de middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -26,6 +27,18 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 
+// Caminho do arquivo de usuários
+const usuariosPath =
+  process.env.NODE_ENV === "production"
+    ? path.join("/tmp", "usuarios.json")
+    : path.join(__dirname, "./data/usuarios.json");
+
+// Inicializa o arquivo de usuários se não existir
+if (!fs.existsSync(usuariosPath)) {
+  fs.writeFileSync(usuariosPath, JSON.stringify([]));
+}
+
+// Rotas principais
 app.use("/auth", authRoutes);
 app.use("/usuarios", usuariosRoutes);
 
@@ -33,7 +46,6 @@ app.get("/menu", (req, res) => {
   if (!req.session.usuario) {
     return res.redirect("/auth/login");
   }
-
   res.render("menu", {
     ultimoAcesso: req.cookies.ultimoAcesso || "Primeiro acesso",
   });
@@ -44,19 +56,18 @@ app.get("/mensagens/batePapo", (req, res) => {
     return res.redirect("/auth/login");
   }
 
-  const usuariosPath = path.join(__dirname, "./data/usuarios.json");
-  const usuarios = JSON.parse(fs.readFileSync(usuariosPath, "utf-8")).map(
-    (usuario) => ({
-      nickname: usuario.nickname,
-    })
-  );
-
-  res.render("batePapo", {
-    usuarios,
-    mensagens,
-    usuarioAtual: req.session.usuario,
-    error: null,
-  });
+  try {
+    const usuarios = JSON.parse(fs.readFileSync(usuariosPath, "utf-8"));
+    res.render("batePapo", {
+      usuarios,
+      mensagens,
+      usuarioAtual: req.session.usuario,
+      error: null,
+    });
+  } catch (error) {
+    console.error("Erro ao carregar usuários:", error);
+    res.status(500).render("error", { message: "Erro ao carregar o bate-papo." });
+  }
 });
 
 app.post("/mensagens/batePapo", (req, res) => {
@@ -68,7 +79,7 @@ app.post("/mensagens/batePapo", (req, res) => {
 
   if (!usuario || !mensagem) {
     return res.render("batePapo", {
-      usuarios,
+      usuarios: JSON.parse(fs.readFileSync(usuariosPath, "utf-8")),
       mensagens,
       usuarioAtual: req.session.usuario,
       error: "Todos os campos são obrigatórios!",
