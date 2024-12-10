@@ -11,7 +11,7 @@ const usuariosPath =
 const login = (req, res) => {
   const { email, senha } = req.body;
 
-  // Validações de campos obrigatórios
+  
   if (!email || !senha) {
     return res.render("login", { error: "E-mail e senha são obrigatórios!" });
   }
