@@ -14,7 +14,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
 
     .container {
@@ -74,6 +74,24 @@
       font-weight: bold;
       margin-bottom: 15px;
     }
+
+    ul {
+      margin-top: 20px;
+      padding: 0;
+      list-style-type: none;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+
+    ul li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    ul li:last-child {
+      border-bottom: none;
+    }
   </style>
 </head>
 <body>
@@ -100,6 +118,13 @@
 
       <button type="submit">Cadastrar</button>
     </form>
+
+    <h2>Usuários Cadastrados</h2>
+    <ul>
+      <% usuarios.forEach(usuario => { %>
+        <li><strong>Nome:</strong> <%= usuario.nome %>, <strong>E-mail:</strong> <%= usuario.email %></li>
+      <% }); %>
+    </ul>
   </div>
 </body>
 </html>
