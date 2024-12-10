@@ -1,0 +1,23 @@
+[
+  {
+    "nome": "Renato",
+    "dataNascimento": "1990-01-01",
+    "nickname": "Renato",
+    "email": "renato@example.com",
+    "senha": "senha123"
+  },
+  {
+    "nome": "Aluno Nota 10",
+    "dataNascimento": "2000-02-02",
+    "nickname": "Aluno_Nota_10",
+    "email": "aluno_nota10@example.com",
+    "senha": "senha456"
+  },
+  {
+    "nome": "Heitor",
+    "dataNascimento": "2002-03-18",
+    "nickname": "heitoravs",
+    "email": "alvesheitor512@gmail.com",
+    "senha": "1234"
+  }
+]

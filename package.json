@@ -1,0 +1,20 @@
+{
+  "name": "sala-bate-papo",
+  "version": "1.0.0",
+  "description": "Projeto de sala de bate-papo usando Node.js e Express",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": ["chat", "nodejs", "express"],
+  "author": "Seu Nome",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1"
+  }
+}
+  
