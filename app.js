@@ -10,7 +10,6 @@ const usuariosRoutes = require("./routes/usuarios");
 
 const app = express();
 
-// Configuração de middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -27,18 +26,18 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 
-// Caminho do arquivo de usuários
+
 const usuariosPath =
   process.env.NODE_ENV === "production"
     ? path.join("/tmp", "usuarios.json")
     : path.join(__dirname, "./data/usuarios.json");
 
-// Inicializa o arquivo de usuários se não existir
+
 if (!fs.existsSync(usuariosPath)) {
   fs.writeFileSync(usuariosPath, JSON.stringify([]));
 }
 
-// Rotas principais
+
 app.use("/auth", authRoutes);
 app.use("/usuarios", usuariosRoutes);
 
